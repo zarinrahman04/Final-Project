@@ -1,0 +1,251 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<!-- EXPENSE OVERVIEW CARD -->
+<div class="card">
+    <div class="card-header">
+        <div>
+            <div class="card-title">Expense Overview</div>
+            <div class="card-subtitle">
+                View, filter, and manage your logged expenses.
+            </div>
+        </div>
+        <a href="{{ url_for('add_expense') }}" class="button-link">
+            <button>Add New Expense</button>
+        </a>
+    </div>
+
+    <!-- FILTERS -->
+    <form method="get" action="{{ url_for('index') }}">
+        <div class="filters-row">
+
+            <!-- CATEGORY DROPDOWN -->
+            <div>
+                <label for="category">Category</label>
+                <select id="category" name="category">
+                    <option value="">All Categories</option>
+                    <option value="Food" {% if selected_category == "Food" %}selected{% endif %}>Food</option>
+                    <option value="Shopping" {% if selected_category == "Shopping" %}selected{% endif %}>Shopping</option>
+                    <option value="Travel" {% if selected_category == "Travel" %}selected{% endif %}>Travel</option>
+                    <option value="Transport" {% if selected_category == "Transport" %}selected{% endif %}>Transport</option>
+                    <option value="Entertainment" {% if selected_category == "Entertainment" %}selected{% endif %}>Entertainment</option>
+                    <option value="Bills" {% if selected_category == "Bills" %}selected{% endif %}>Bills</option>
+                    <option value="Other" {% if selected_category == "Other" %}selected{% endif %}>Other</option>
+                </select>
+            </div>
+
+            <!-- YEAR INPUT -->
+            <div>
+                <label for="year">Year</label>
+                <input type="text" id="year" name="year"
+                       value="{{ year_filter }}" placeholder="2025">
+            </div>
+
+            <!-- MONTH INPUT -->
+            <div>
+                <label for="month">Month (1–12)</label>
+                <input type="text" id="month" name="month"
+                       value="{{ month_filter }}" placeholder="12">
+            </div>
+
+            <!-- SUBMIT & CLEAR -->
+            <div>
+                <button type="submit">Apply Filters</button>
+                <a href="{{ url_for('index') }}" class="button-link">
+                    <button type="button" class="btn-secondary">Clear</button>
+                </a>
+            </div>
+
+        </div>
+    </form>
+
+    <!-- EXPENSE TABLE -->
+    {% if expenses %}
+        <p class="muted" style="margin-top: 10px;">
+            Showing <strong>{{ expenses|length }}</strong> expense(s)
+            {% if year_filter or month_filter or selected_category %}
+                <span class="chip">Filtered view</span>
+            {% endif %}
+        </p>
+
+        <table>
+            <thead>
+            <tr>
+                <th>#</th>
+                <th>Date</th>
+                <th>Category</th>
+                <th>Amount</th>
+                <th>Note</th>
+                <th>Delete</th>
+            </tr>
+            </thead>
+
+            <tbody>
+            {% for exp in expenses %}
+            <tr>
+                <td>{{ loop.index }}</td>
+                <td>{{ exp.date }}</td>
+                <td>{{ exp.category }}</td>
+                <td>${{ "%.2f"|format(exp.amount) }}</td>
+                <td>{{ exp.note }}</td>
+
+                <td>
+                    <form action="{{ url_for('delete_expense', expense_index=exp.file_index) }}"
+                          method="POST" style="display:inline;">
+                        <button type="submit" class="btn-danger"
+                                onclick="return confirm('Delete this expense?');">
+                            Delete
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p style="margin-top: 12px;">
+            No expenses match your filters.
+            <a href="{{ url_for('add_expense') }}">Add a new expense</a> to get started.
+        </p>
+    {% endif %}
+</div>
+
+<!-- SPENDING SUMMARY + CHARTS -->
+<div class="card">
+    <div class="card-header">
+        <div>
+            <div class="card-title">Spending Summary</div>
+            <div class="card-subtitle">
+                Totals, averages, and category breakdown for the current view.
+            </div>
+        </div>
+    </div>
+
+    {% if summary %}
+        <table class="summary-table">
+            <thead>
+            <tr>
+                <th>Category</th>
+                <th>Total Spent</th>
+                <th>Average per Expense</th>
+                <th>Number of Expenses</th>
+            </tr>
+            </thead>
+
+            <tbody>
+            {% for category, stats in summary.items() %}
+            <tr>
+                <td>{{ category }}</td>
+                <td>${{ "%.2f"|format(stats.total) }}</td>
+                <td>${{ "%.2f"|format(stats.average) }}</td>
+                <td>{{ stats.count }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="chart-row">
+            <div class="chart-card">
+                <h3>Bar Chart</h3>
+                <p class="muted">Total spending by category.</p>
+                {% if bar_chart_filename %}
+                    <img src="{{ url_for('static', filename=bar_chart_filename) }}"
+                         alt="Total spending by category bar chart"
+                         class="chart-img">
+                {% else %}
+                    <p class="muted">No data yet to generate a bar chart.</p>
+                {% endif %}
+            </div>
+
+            <div class="chart-card">
+                <h3>Pie Chart</h3>
+                <p class="muted">Category share of total spending.</p>
+                {% if pie_chart_filename %}
+                    <img src="{{ url_for('static', filename=pie_chart_filename) }}"
+                         alt="Category share pie chart"
+                         class="chart-img">
+                {% else %}
+                    <p class="muted">No data yet to generate a pie chart.</p>
+                {% endif %}
+            </div>
+        </div>
+    {% else %}
+        <p class="muted">
+            No summary yet. Add some expenses or adjust your filters to see stats and charts.
+        </p>
+    {% endif %}
+</div>
+
+<!-- BUDGET STATUS CARD -->
+<div class="card">
+    <div class="card-header">
+        <div>
+            <div class="card-title">Budget Status</div>
+            <div class="card-subtitle">
+                Compare your category budgets against current spending.
+            </div>
+        </div>
+        <a href="{{ url_for('manage_budgets') }}" class="button-link">
+            <button class="btn-secondary">Manage Budgets</button>
+        </a>
+    </div>
+
+    {% if budget_view and budget_view|length > 0 %}
+        <table class="summary-table">
+            <thead>
+            <tr>
+                <th>Category</th>
+                <th>Budget</th>
+                <th>Spent (current view)</th>
+                <th>Remaining</th>
+                <th>Status</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for category, data in budget_view.items() %}
+            {% set remaining = data.remaining %}
+            {% set percent = data.percent_used %}
+            <tr>
+                <td>{{ category }}</td>
+                <td>${{ "%.2f"|format(data.budget) }}</td>
+                <td>${{ "%.2f"|format(data.spent) }}</td>
+                <td
+                    {% if remaining < 0 %}
+                        style="color: #b91c1c; font-weight: 600;"
+                    {% endif %}
+                >
+                    ${{ "%.2f"|format(remaining) }}
+                </td>
+                <td>
+                    {% if percent is none %}
+                        <span class="muted">No budget set</span>
+                    {% else %}
+                        {% if remaining < 0 %}
+                            <span style="color: #b91c1c; font-weight: 600;">Over budget</span>
+                        {% elif percent >= 80 %}
+                            <span style="color: #ca8a04; font-weight: 600;">
+                                {{ "%.1f"|format(percent) }}% used
+                            </span>
+                        {% else %}
+                            <span style="color: #15803d; font-weight: 600;">
+                                {{ "%.1f"|format(percent) }}% used
+                            </span>
+                        {% endif %}
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        <p class="muted">
+            Budgets are compared against the expenses currently shown with your filters.
+        </p>
+    {% else %}
+        <p class="muted">
+            No budgets set yet. <a href="{{ url_for('manage_budgets') }}">Add a budget</a> to start tracking.
+        </p>
+    {% endif %}
+</div>
+
+{% endblock %}

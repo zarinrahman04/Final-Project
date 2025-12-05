@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Personal Expense Tracker</title>
+
+    <style>
+        :root {
+            /* GREEN FINANCE THEME */
+            --bg: #f0fdf4;
+            --bg-gradient-1: #dcfce7;
+            --bg-gradient-2: #ecfdf5;
+            --card-bg: #ffffff;
+            --accent: #059669;
+            --accent-soft: #d1fae5;
+            --accent-dark: #047857;
+            --text-main: #064e3b;
+            --text-muted: #6b7280;
+            --border: #e5e7eb;
+            --danger: #dc2626;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background: radial-gradient(circle at top, var(--bg-gradient-1) 0, var(--bg-gradient-2) 40%, #f9fafb 100%);
+            color: var(--text-main);
+            margin: 0;
+            min-height: 100vh;
+        }
+
+        .page-wrapper {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 24px 16px 40px;
+        }
+
+        header {
+            margin-bottom: 24px;
+            background: rgba(255, 255, 255, 0.92);
+            border-radius: 16px;
+            padding: 16px 20px;
+            box-shadow: 0 10px 25px rgba(15, 23, 42, 0.06);
+            backdrop-filter: blur(6px);
+            border: 1px solid rgba(209, 250, 229, 0.8);
+        }
+
+        header h1 {
+            margin: 0 0 6px;
+            font-size: 26px;
+            letter-spacing: 0.02em;
+            color: var(--accent-dark);
+        }
+
+        header p {
+            margin: 0;
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        nav {
+            margin-top: 12px;
+            display: flex;
+            gap: 8px;
+        }
+
+        nav a {
+            text-decoration: none;
+            padding: 6px 14px;
+            border-radius: 999px;
+            font-size: 14px;
+            border: 1px solid transparent;
+            color: var(--accent-dark);
+            background: transparent;
+            transition: 0.16s ease;
+        }
+
+        nav a:hover {
+            background: var(--accent-soft);
+            color: var(--accent-dark);
+            border-color: #bbf7d0;
+        }
+
+        nav a:first-child {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+
+        hr {
+            border: none;
+            border-top: 1px solid rgba(209, 213, 219, 0.7);
+            margin-top: 14px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 18px 20px;
+            box-shadow: 0 18px 40px rgba(15, 23, 42, 0.05);
+            border: 1px solid rgba(209, 213, 219, 0.9);
+            margin-bottom: 18px;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--accent-dark);
+        }
+
+        .card-subtitle {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        h2, h3 {
+            margin: 0 0 8px;
+            color: var(--accent-dark);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 8px;
+            font-size: 14px;
+        }
+
+        thead { background: #f9fafb; }
+
+        th, td {
+            padding: 8px 10px;
+            border-bottom: 1px solid var(--border);
+            text-align: left;
+        }
+
+        th {
+            font-weight: 600;
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        tbody tr:nth-child(odd) { background: #f9fafb; }
+        tbody tr:hover { background: var(--accent-soft); }
+
+        .error {
+            color: var(--danger);
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .summary-table { margin-top: 10px; }
+
+        .inline-row {
+            display: flex;
+            gap: 16px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+
+        .inline-row > div {
+            flex: 1;
+            min-width: 140px;
+        }
+
+        label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            margin-bottom: 3px;
+            color: var(--text-muted);
+        }
+
+        input, select {
+            width: 100%;
+            padding: 7px 9px;
+            font-size: 14px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background-color: #f9fafb;
+            transition: 0.15s ease;
+        }
+
+        input:focus, select:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 1px #bbf7d0;
+            background-color: #ffffff;
+        }
+
+        button {
+            padding: 7px 16px;
+            font-size: 14px;
+            cursor: pointer;
+            border-radius: 999px;
+            border: 1px solid transparent;
+            background: var(--accent);
+            color: #ffffff;
+            transition: 0.15s ease;
+        }
+
+        button:hover { background: var(--accent-dark); }
+
+        .btn-secondary {
+            background: #e5e7eb;
+            color: var(--text-main);
+        }
+
+        .btn-secondary:hover { background: #d1d5db; }
+
+        .btn-danger {
+            background: rgba(220, 38, 38, 0.08);
+            color: var(--danger);
+            border-color: rgba(220, 38, 38, 0.2);
+        }
+
+        .btn-danger:hover { background: rgba(220, 38, 38, 0.16); }
+
+        a { color: var(--accent-dark); }
+        a.button-link { text-decoration: none; }
+
+        .filters-row {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            align-items: flex-end;
+        }
+
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 8px;
+            border-radius: 999px;
+            background: var(--accent-soft);
+            color: var(--accent-dark);
+            font-size: 11px;
+            font-weight: 500;
+            margin-left: 6px;
+        }
+
+        .chart-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-top: 12px;
+        }
+
+        .chart-card {
+            flex: 1;
+            min-width: 260px;
+        }
+
+        .chart-img {
+            max-width: 100%;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            background: #f9fafb;
+            padding: 6px;
+        }
+
+        .muted {
+            color: var(--text-muted);
+            font-size: 13px;
+        }
+    </style>
+</head>
+
+<body>
+<div class="page-wrapper">
+
+    <!-- HEADER WITH ET LOGO -->
+    <header>
+        <div style="display: flex; align-items: center; gap: 14px;">
+            <div style="
+                width: 48px;
+                height: 48px;
+                border-radius: 14px;
+                background: var(--accent);
+                color: white;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-weight: 700;
+                letter-spacing: 1px;
+                font-size: 18px;
+                box-shadow: 0 4px 10px rgba(5, 150, 105, 0.25);
+            ">
+                ET
+            </div>
+
+            <div>
+                <h1>Personal Expense Tracker</h1>
+                <p>Track your spending, understand your habits, and stay financially aware.</p>
+            </div>
+        </div>
+
+        <nav>
+            <a href="{{ url_for('index') }}">Overview</a>
+            <a href="{{ url_for('add_expense') }}">Add Expense</a>
+            <a href="{{ url_for('manage_budgets') }}">Budgets</a>
+        </nav>
+
+        <hr>
+    </header>
+
+    {% block content %}{% endblock %}
+</div>
+</body>
+</html>

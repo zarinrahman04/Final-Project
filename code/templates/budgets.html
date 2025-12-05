@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="card">
+    <div class="card-header">
+        <div>
+            <div class="card-title">Manage Budgets</div>
+            <div class="card-subtitle">
+                Set or update monthly budgets for each category.
+            </div>
+        </div>
+    </div>
+
+    {% if error %}
+        <p class="error">{{ error }}</p>
+    {% endif %}
+
+    <form method="post" action="{{ url_for('manage_budgets') }}">
+        <div class="inline-row">
+            <div>
+                <label for="category">Category</label>
+                <select id="category" name="category">
+                    <option value="">-- Select Category --</option>
+                    <option value="Food">Food</option>
+                    <option value="Shopping">Shopping</option>
+                    <option value="Travel">Travel</option>
+                    <option value="Transport">Transport</option>
+                    <option value="Entertainment">Entertainment</option>
+                    <option value="Bills">Bills</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+
+            <div>
+                <label for="amount">Monthly Budget Amount</label>
+                <input type="text" id="amount" name="amount" placeholder="200.00">
+            </div>
+        </div>
+
+        <div style="margin-top: 14px;">
+            <button type="submit">Save Budget</button>
+        </div>
+    </form>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <div>
+            <div class="card-title">Current Budgets</div>
+            <div class="card-subtitle">
+                All defined category budgets.
+            </div>
+        </div>
+    </div>
+
+    {% if budgets and budgets|length > 0 %}
+        <table class="summary-table">
+            <thead>
+            <tr>
+                <th>Category</th>
+                <th>Monthly Budget</th>
+                <th>Delete</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for category, amount in budgets.items() %}
+            <tr>
+                <td>{{ category }}</td>
+                <td>${{ "%.2f"|format(amount) }}</td>
+                <td>
+                    <form action="{{ url_for('delete_budget', category=category) }}"
+                          method="POST"
+                          style="display:inline;">
+                        <button type="submit" class="btn-danger"
+                                onclick="return confirm('Delete this budget?');">
+                            Delete
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p class="muted">No budgets defined yet. Add one using the form above.</p>
+    {% endif %}
+</div>
+
+{% endblock %}
+
